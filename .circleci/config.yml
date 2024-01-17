@@ -1,15 +1,16 @@
 version: 2.1
+
 jobs:
   build:
     working_directory: ~/repo
     docker:
-      - image: circleci/node:12-browsers
+      - image: circleci/node:14.17-browsers
     steps:
       - checkout
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package-lock.json" }}
-          - v1-dependencies-
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies-
       - run:
           name: Install dependencies
           command: npm install --legacy-peer-deps
@@ -19,28 +20,28 @@ jobs:
             - node_modules
       - run:
           name: Build
-          command: |
-            if [ $CIRCLE_BRANCH = 'circleci-project-setup' ]; then
-              npm run build
-            fi
+          command: npm run build
       - persist_to_workspace:
           root: .
           paths:
-            - .
+            - build
+
   deploy:
     working_directory: ~/repo
     docker:
-      - image: innovatorjapan/awscli:latest
+      - image: circleci/node:14.17
     steps:
       - attach_workspace:
           at: .
       - run:
           name: Deploy
           command: |
-            if [ $CIRCLE_BRANCH = 'circleci-project-setup' ]; then
-              aws s3 sync build s3://example-react-app-from-ekpono --delete --exact-timestamps;
+            if [ "$CIRCLE_BRANCH" = 'circleci-project-setup' ]; then
+              aws s3 sync build s3://example-react-app-from-ekpono --delete --exact-timestamps
             fi
+
 workflows:
+  version: 2
   build_and_deploy:
     jobs:
       - build:
@@ -55,3 +56,4 @@ workflows:
             branches:
               only:
                 - circleci-project-setup
+
