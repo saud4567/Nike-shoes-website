@@ -6,7 +6,7 @@ jobs:
   build:
     docker:
       - image: circleci/node:18
-    working_directory: ~/home/ubuntu/Nike-shoes-website/Nikeshoeswebs/.circleci
+    working_directory: ~/Nikeshoeswebs/.circleci/config.yml
     steps:
       - checkout
       - run:
